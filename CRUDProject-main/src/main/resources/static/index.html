@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Employee CRUD - Form</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f9fafb; margin: 0; padding: 20px; color: #333;">
+
+  <!-- Button to go to Employee List page -->
+  <button onclick="window.location.href='employee-list.html'"
+          style="margin-bottom: 20px; padding: 10px 20px; background-color: #2ecc71; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: bold;">
+    Employee List
+  </button>
+
+  <h1 style="text-align: center; color: #2c3e50; margin-bottom: 30px;">Employee Management</h1>
+
+  <section style="max-width: 500px; margin: 0 auto 40px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <h3 style="margin-bottom: 15px; color: #34495e;">Add / Update Employee</h3>
+    <form id="employeeForm" style="display: flex; flex-direction: column; gap: 12px;">
+      <input type="hidden" id="id" />
+
+      <label style="font-weight: bold;">First Name:</label>
+      <input type="text" id="firstName" required
+             style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;"/>
+
+      <label style="font-weight: bold;">Last Name:</label>
+      <input type="text" id="lastName" required
+             style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;"/>
+
+      <label style="font-weight: bold;">Email:</label>
+      <input type="email" id="email" required
+             style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;"/>
+
+      <button type="submit" 
+              style="margin-top: 15px; padding: 10px; background-color: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+        Save
+      </button>
+    </form>
+  </section>
+
+<script>
+  const apiUrl = "/api/employees";
+
+  // On page load, check if URL has ?editId=... to load employee for editing
+  window.onload = function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const editId = urlParams.get('editId');
+    if (editId) {
+      fetch(`${apiUrl}/${editId}`)
+        .then(res => res.json())
+        .then(emp => {
+          document.getElementById("id").value = emp.id;
+          document.getElementById("firstName").value = emp.firstName;
+          document.getElementById("lastName").value = emp.lastName;
+          document.getElementById("email").value = emp.email;
+        });
+    }
+  };
+
+  document.getElementById("employeeForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const employee = {
+      id: parseInt(document.getElementById("id").value) || 0,
+      firstName: document.getElementById("firstName").value,
+      lastName: document.getElementById("lastName").value,
+      email: document.getElementById("email").value
+    };
+
+    const method = employee.id === 0 ? "POST" : "PUT";
+
+    fetch(apiUrl, {
+      method: method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(employee)
+    })
+      .then(res => res.json())
+      .then(() => {
+        clearForm();
+        alert('Employee saved successfully!');
+      });
+  });
+
+  function clearForm() {
+    document.getElementById("id").value = "";
+    document.getElementById("firstName").value = "";
+    document.getElementById("lastName").value = "";
+    document.getElementById("email").value = "";
+  }
+</script>
+
+</body>
+</html>
